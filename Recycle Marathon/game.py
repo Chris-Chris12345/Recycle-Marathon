@@ -2,11 +2,13 @@ import pygame
 import random
 from pygame.locals import *
 import time
+pygame.init()
+
 
 #create the gaming screen
 #assign screen's width, height and caption
-screen_width = 500
-screen_height = 600
+screen_width = 900
+screen_height = 700
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Recycle Marathon")
 
@@ -77,4 +79,50 @@ text = font.render("Score: "+ str(score),True, RED)
 while playing:
     clock.tick(30)
     time_Elapsed = time.time() - start_time
-    
+    if time_Elapsed >= 60:
+        if score >= 40:
+            bg_change("win_bg.png")
+        else:
+            bg_change("lose_bg.png")
+            
+        pygame.display.update()
+        time.sleep(3)
+        break
+
+    else:
+        bg_change("bg.png")
+        countdown = time_font.render("Time left: " + str(60 - int(time_Elapsed)),True,RED)
+        screen.blit(countdown,(20,10))
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_UP]:
+            if bin.rect.y > 0:
+                bin.rect.y -= 5
+        if keys[pygame.K_DOWN]:
+            if bin.rect.y < 640:
+                bin.rect.y += 5
+        if keys[pygame.K_RIGHT]:
+            if bin.rect.x < 860:
+                bin.rect.x += 5
+        if keys[pygame.K_LEFT]:
+            if bin.rect.x > 0:
+                bin.rect.x -= 5
+
+        RecyclableHitList = pygame.sprite.spritecollide(bin,rec_list,True)
+        PlasticHitList = pygame.sprite.spritecollide(bin,plastic_list,True)
+
+        for item in RecyclableHitList:
+            score += 1
+            text = font.render("Score: "+ str(score),True, RED)
+        for item in PlasticHitList:
+            score -= 3
+            text = font.render("Score: "+ str(score),True, RED)
+
+        screen.blit(text, (800,10))
+        allitems_list.draw(screen)
+
+    pygame.display.update()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            playing = False
